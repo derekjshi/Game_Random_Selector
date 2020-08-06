@@ -5,6 +5,10 @@ import random
 class Selector:
     def __init__(self, list_of_games):
         self.list_of_games = list_of_games
+        Evaluator = True
+        while Evaluator is True:
+          Evaluator = self.add_item()
+        self.pick_item()
 
     def list_print(self):
         for i in range(len(self.list_of_games)):
@@ -24,15 +28,11 @@ class Selector:
             elif new_input.upper() in list_of_games_upper:
                 index = 0
                 for z in range(len(list_of_games_upper)):
-                    if list_of_games_upper[z] == new_input.upper():
-                        index = z
+                  index = list_of_games_upper.index(new_input.upper())
                 del self.list_of_games[index]
         return True
 
     def pick_item(self):
         print("This is the final list the game will be selected from:")
-        for x in range(len(self.list_of_games)):
-            print("\t", x + 1, ":", self.list_of_games[x])
+        self.list_print()
         print("\nYou shall play....", self.list_of_games[random.randint(0, (len(self.list_of_games)-1))])
-
-
