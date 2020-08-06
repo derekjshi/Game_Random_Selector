@@ -1,6 +1,6 @@
-Hello,
+# Hello, Welcome to my random game selector. 
 
-Welcome to my random game selector. https://repl.it/@derekjshi/What-To-Play#main.py
+https://repl.it/@derekjshi/What-To-Play#main.py
 
 This is a very basic program that will establish a list of any item (in this case it's video games) and select a random integer and pull the item at that index in the list.
 
