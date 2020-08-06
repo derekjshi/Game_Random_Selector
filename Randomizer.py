@@ -5,9 +5,9 @@ import random
 class Selector:
     def __init__(self, list_of_games):
         self.list_of_games = list_of_games
-        Evaluator = True
-        while Evaluator is True:
-          Evaluator = self.add_item()
+        evaluator = True
+        while evaluator is True:
+          evaluator = self.add_item()
         self.pick_item()
 
     def list_print(self):
