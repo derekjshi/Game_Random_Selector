@@ -1,11 +1,18 @@
-from Randomizer import Selector
+from GameRandomizer import GameSelector
+from bot import DiscordBot
 
+import discord
+import os
+from dotenv import load_dotenv
 
 def main():
-    print("Welcome to the random game selector.\n")
-    print("Here is the existing list of games the Randomizer will select from:")
-    # Initializes an object of class Randomizer, and sets the initial values in List_of_games
-    r1 = Selector(["Valorant", "Minecraft", "Runescape", "League of Legends", "L4D2"])
-    
+    load_dotenv()
+    TOKEN = os.getenv('DISCORD_TOKEN')
+
+    # TODO switch for dynamic loading from some file or etc.
+    r1 = GameSelector(["Valorant", "Minecraft", "Runescape", "League of Legends", "L4D2"])
+    discord_client = DiscordBot(r1)
+    discord_client.run(TOKEN)
+
 if __name__ == "__main__":
     main()

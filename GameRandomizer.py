@@ -1,15 +1,25 @@
 import random
+from abc import ABC, abstractmethod
 
+class RandomizerInterface(ABC):
+
+    @abstractmethod
+    def list_print(self):
+        pass
+
+    @abstractmethod
+    def add_item(self):
+        pass
+
+    @abstractmethod
+    def pick_item(self):
+        pass
 
 # This is a random game selector from a pre-set list of common games played with an option to add additional games
-class Selector:
+class GameSelector(RandomizerInterface):
     def __init__(self, list_of_games):
         self.list_of_games = list_of_games
-        evaluator = True
-        while evaluator is True:
-          evaluator = self.add_item()
-        self.pick_item()
-
+        
     def list_print(self):
         for i in range(len(self.list_of_games)):
             print("\t", i + 1, ":", self.list_of_games[i])
@@ -28,11 +38,13 @@ class Selector:
             elif new_input.upper() in list_of_games_upper:
                 index = 0
                 for z in range(len(list_of_games_upper)):
-                  index = list_of_games_upper.index(new_input.upper())
+                    index = list_of_games_upper.index(new_input.upper())
                 del self.list_of_games[index]
         return True
 
     def pick_item(self):
         print("This is the final list the game will be selected from:")
         self.list_print()
-        print("\nYou shall play....", self.list_of_games[random.randint(0, (len(self.list_of_games)-1))])
+        random_game = self.list_of_games[random.randint(0, (len(self.list_of_games)-1))]
+        print("\nYou shall play....", random_game)
+        return "You shall play {}!".format(random_game)
