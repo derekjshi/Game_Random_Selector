@@ -2,6 +2,9 @@ import random
 from abc import ABC, abstractmethod
 
 class RandomizerInterface(ABC):
+    '''
+        An abstract class which defines the required methods in our Randomizer interface
+    '''
 
     @abstractmethod
     def list_print(self):
@@ -16,7 +19,7 @@ class RandomizerInterface(ABC):
         pass
 
 # This is a random game selector from a pre-set list of common games played with an option to add additional games
-class GameSelector(RandomizerInterface):
+class GameRandomizer(RandomizerInterface):
     def __init__(self, list_of_games):
         self.list_of_games = list_of_games
         
