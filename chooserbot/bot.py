@@ -33,6 +33,8 @@ class DiscordBot(discord.Client):
             response = 'TODO - NOT IMPLEMENTED'
         elif message.content.lower() == '!chooser game list':
             response = 'TODO - NOT IMPLEMENTED'
+        elif message.content.lower() == '!chooser game remove':
+            response = 'TODO - NOT IMPLEMENTED'
         else:
             response = 'TODO - Help Message'
 
