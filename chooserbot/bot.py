@@ -2,10 +2,11 @@
 import os
 import random
 
-from GameRandomizer import RandomizerInterface
-
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
+
+from chooserbot.randomizer import GameRandomizer, RandomizerInterface
 
 class DiscordBot(discord.Client):
 
@@ -38,3 +39,17 @@ class DiscordBot(discord.Client):
             response = 'TODO - Help Message'
 
         await message.channel.send(response)
+
+def runBot():
+    """
+    Run the bot with the token from .env file or environment variable 'DISCORD_TOKEN'
+    """
+    print("Running bot . . .")
+
+    load_dotenv()
+    TOKEN = os.getenv('DISCORD_TOKEN')
+
+    # TODO switch for dynamic loading from some file or etc.
+    r1 = GameRandomizer(["Valorant", "Minecraft", "Runescape", "League of Legends", "L4D2"])
+    discord_client = DiscordBot(r1)
+    discord_client.run(TOKEN)
