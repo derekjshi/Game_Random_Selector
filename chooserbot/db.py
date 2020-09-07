@@ -4,35 +4,10 @@ from abc import ABC, abstractmethod
 import mysql.connector
 import os
 
-class TableInterface(ABC):
-    '''
-        An abstract class which defines the required methods in our Table interface
-        CRUD operations
-    '''
-    @abstractmethod
-    def create_entity(self):
-        pass    
-
-    @abstractmethod
-    def retrieve_entitiy(self):
-        pass
-
-    @abstractmethod
-    def retrieve_all(self):
-        pass
-
-    @abstractmethod
-    def update_entity(self):
-        pass
-
-    @abstractmethod
-    def delete_entitiy(self):
-        pass
-
 class Tables():
     NUM_OF_TABLES = 3
     Users, Items, Results = range(NUM_OF_TABLES)
-    
+
     # placeholders
     Names = ['a'] * NUM_OF_TABLES
     CreateCommands = ['a'] * NUM_OF_TABLES
