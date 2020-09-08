@@ -3,16 +3,14 @@ from typing import NamedTuple
 from dotenv import load_dotenv
 from abc import ABC, abstractmethod
 import mysql.connector
-from db import Database
 
 class TableInterface(ABC):
     '''
         An abstract class which defines the required methods in our Table interface
         CRUD operations
     '''
-    def __init__(self, name, database : Database):
+    def __init__(self, name):
         self.name = name
-        self.db = database
 
     @abstractmethod
     def create_table(self):
@@ -22,57 +20,64 @@ class TableInterface(ABC):
     def create_entity(self):
         pass    
 
-    def retrieve_entity(self, entity_id):
+    def retrieve_entity(self, db: mysql.connector.MySQLConnection, entity_id):
         cmd = "SELECT * FROM " + self.name + " WHERE ID=" + entity_id
-        cursor = self.db.cursor()
+        cursor = db.cursor()
         cursor.execute(cmd)
-        return cursor
+        return cursor.fetchall()
         
-    def retrieve_all(self):
+    def retrieve_all(self, db: mysql.connector.MySQLConnection):
         cmd = "SELECT * FROM " + self.name
-        cursor = self.db.cursor()
+        cursor = db.cursor()
         cursor.execute(cmd)
-        return cursor
+        return cursor.fetchall()
 
     @abstractmethod
     def update_entity(self):
         pass
 
-    def delete_entity(self, entity_id):
+    def delete_entity(self, db: mysql.connector.MySQLConnection, entity_id):
         cmd = "DELETE FROM " + self.name + " WHERE ID=" + entity_id
-        cursor = self.db.cursor()
+        cursor = db.cursor()
         cursor.execute(cmd)
-        self.db.commit()
+        db.commit()
 
 class UsersTable(TableInterface):
-    def create_table(self):
-        cursor = self.db.cursor()
+    def get_user(self, db: mysql.connector.MySQLConnection, username):
+        cursor = db.cursor()
+        cmd = "SELECT * FROM Users WHERE Name=\'" + username + "\'"
+        cursor.execute(cmd)
+        return cursor.fetchall()
+
+    def create_table(self, db: mysql.connector.MySQLConnection):
+        cursor = db.cursor()
         cmd = """CREATE TABLE Users (
             ID INT AUTO_INCREMENT,
             Name varchar(32) NOT NULL,
-            PRIMARY KEY (UserID)
+            PRIMARY KEY (ID)
         )
         """        
         
         cursor.execute(cmd)
 
-    def create_entity(self, username):
-        cursor = self.db.cursor()
-        cmd = """INSERT INTO %s 
+    def create_entity(self, db: mysql.connector.MySQLConnection, username):
+        cursor = db.cursor()
+        cmd = """INSERT INTO Users 
             (ID, Name) 
-            VALUES (0, %s)
-        """
-        data_user = (self.name, username)
+            VALUES (%s, %s)
+            """
+
+        data_user = (0, username)
         cursor.execute(cmd, data_user)
-        self.db.commit()
+        db.commit()
 
     def update_entity(self):
         # shouldn't allow updates on the user table...
         return
 
 class ItemsTable(TableInterface):
-    def create_table(self):
-        cursor = self.db.cursor()
+    def create_table(self, db: mysql.connector.MySQLConnection):
+        cursor = db.cursor()
         cmd = """CREATE TABLE Items (
             ID INT AUTO_INCREMENT,
             Name varchar(32) NOT NULL,
@@ -83,23 +88,25 @@ class ItemsTable(TableInterface):
         """    
         cursor.execute(cmd)
 
-    def create_entity(self, item_name, user_id):
-        cursor = self.db.cursor()
-        cmd = """INSERT INTO %s 
+    def create_entity(self, db: mysql.connector.MySQLConnection, item_name, user_id):
+        cursor = db.cursor()
+        cmd = """INSERT INTO Items 
             (ID, Name, UserID) 
-            VALUES (0, %s, %d)
+            VALUES (%s, %s, %s)
         """
-        data_item = (self.name, item_name, user_id)
+
+        data_item = (0, item_name, user_id)
+
         cursor.execute(cmd, data_item)
-        self.db.commit()
+        db.commit()
 
     def update_entity(self):
         # shouldn't allow updates on the items table...
         return
 
 class ResultsTable(TableInterface):
-    def create_table(self):
-        cursor = self.db.cursor()
+    def create_table(self, db: mysql.connector.MySQLConnection):
+        cursor = db.cursor()
         cmd = """CREATE TABLE Results (
             ID INT AUTO_INCREMENT,
             TimeOfResult DATETIME NOT NULL,
@@ -112,15 +119,15 @@ class ResultsTable(TableInterface):
         """
         cursor.execute(cmd)
 
-    def create_entity(self, time_of_result, user_id, item_id):
-        cursor = self.db.cursor()
-        cmd = """INSERT INTO %s 
+    def create_entity(self, db: mysql.connector.MySQLConnection, time_of_result, user_id, item_id):
+        cursor = db.cursor()
+        cmd = """INSERT INTO  
             (ID, TimeOfResult, UserID, ItemID), 
-            VALUES (0, %s, %d, %d)
+            VALUES (%d, %s, %d, %d)
         """
-        data_results = (self.name, time_of_result, user_id, item_id)
+        data_results = (0, time_of_result, user_id, item_id)
         cursor.excute(cmd, data_results)
-        self.db.commit()
+        db.commit()
 
     def update_entity(self):
         # shouldn't allow updates on the results table...
