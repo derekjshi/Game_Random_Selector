@@ -22,7 +22,10 @@ class RandomizerInterface(ABC):
 class GameRandomizer(RandomizerInterface):
     def __init__(self, list_of_games):
         self.list_of_games = list_of_games
-        
+    
+    def set_list_of_games(self, new_list_of_games):
+        self.list_of_games = new_list_of_games
+
     def list_print(self):
         for i in range(len(self.list_of_games)):
             print("\t", i + 1, ":", self.list_of_games[i])

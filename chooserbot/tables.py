@@ -9,7 +9,7 @@ class TableInterface(ABC):
         An abstract class which defines the required methods in our Table interface
         CRUD operations
     '''
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
 
     @abstractmethod
@@ -20,10 +20,19 @@ class TableInterface(ABC):
     def create_entity(self):
         pass    
 
-    def retrieve_entity(self, db: mysql.connector.MySQLConnection, entity_id):
-        cmd = "SELECT * FROM " + self.name + " WHERE ID=" + entity_id
+    def retrieve_entity(self, db: mysql.connector.MySQLConnection, entity_id = None, entity_name = None):
+        cmd = ""
+        data_entity = ()
+
+        if entity_id is not None:
+            cmd = "SELECT * FROM " + self.name + " WHERE ID=%s"
+            data_entity = (entity_id, )
+        else:
+            cmd = "SELECT * FROM " + self.name + " WHERE Name=%s"
+            data_entity = (entity_name, )
+
         cursor = db.cursor()
-        cursor.execute(cmd)
+        cursor.execute(cmd, data_entity)
         return cursor.fetchall()
         
     def retrieve_all(self, db: mysql.connector.MySQLConnection):
@@ -36,19 +45,21 @@ class TableInterface(ABC):
     def update_entity(self):
         pass
 
-    def delete_entity(self, db: mysql.connector.MySQLConnection, entity_id):
-        cmd = "DELETE FROM " + self.name + " WHERE ID=" + entity_id
+    def delete_entity(self, db: mysql.connector.MySQLConnection, entity_id = None, entity_name = None):
+        cmd = ""
+        data_entity = ()
+        if entity_id is not None:
+            cmd = "DELETE FROM " + self.name + "WHERE ID=%s"
+            data_entity = (entity_id, )
+        else:
+            cmd = "DELETE FROM " + self.name + " WHERE Name=%s"
+            data_entity = (entity_name, )
+
         cursor = db.cursor()
-        cursor.execute(cmd)
+        cursor.execute(cmd, data_entity)
         db.commit()
 
 class UsersTable(TableInterface):
-    def get_user(self, db: mysql.connector.MySQLConnection, username):
-        cursor = db.cursor()
-        cmd = "SELECT * FROM Users WHERE Name=\'" + username + "\'"
-        cursor.execute(cmd)
-        return cursor.fetchall()
-
     def create_table(self, db: mysql.connector.MySQLConnection):
         cursor = db.cursor()
         cmd = """CREATE TABLE Users (
@@ -57,7 +68,6 @@ class UsersTable(TableInterface):
             PRIMARY KEY (ID)
         )
         """        
-        
         cursor.execute(cmd)
 
     def create_entity(self, db: mysql.connector.MySQLConnection, username):
@@ -123,7 +133,7 @@ class ResultsTable(TableInterface):
         cursor = db.cursor()
         cmd = """INSERT INTO  
             (ID, TimeOfResult, UserID, ItemID), 
-            VALUES (%d, %s, %d, %d)
+            VALUES (%s, %s, %s, %s)
         """
         data_results = (0, time_of_result, user_id, item_id)
         cursor.excute(cmd, data_results)

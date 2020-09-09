@@ -23,7 +23,7 @@ class DiscordBot(discord.Client):
         super().__init__(*args, **kwargs)
         self.randomizer = randomizer
         self.db = db
-            
+
     async def on_ready(self):
         print('Chooser logged on as', self.user)
     
@@ -36,33 +36,64 @@ class DiscordBot(discord.Client):
             return
 
         response = ''
-        if message.content.lower() == '!chooser game':
+
+        self.get_item_list_from_db()
+
+        if ';' in message.content:
+            message = "No semicolons allowed you hacker."
+        elif message.content.lower() == '!chooser game':
             response = self.randomizer.pick_item()
         elif '!chooser game add' in message.content.lower():
-            #todo need to parse message better and add game that's mentioned
-            #response = 'TODO - NOT IMPLEMENTED'
-
-            #crude implementation
-            words = message.content.split()
-            item = ' '.join(words[3:])
-
-            user = self.db.users_table.get_user(self.db.db, message.author.name) 
-
-            if len(user) == 0:
-                self.db.users_table.create_entity(self.db.db, message.author.name)
-                user = self.db.users_table.get_user(self.db.db, message.author.name)
-
-            self.db.items_table.create_entity(self.db.db, item, user[0][0])
-            response = user[0][1] + " added " + item
-
+            response = self.parse_game_add_msg(message)
         elif message.content.lower() == '!chooser game list':
-            response = 'TODO - NOT IMPLEMENTED'
-        elif message.content.lower() == '!chooser game remove':
-            response = 'TODO - NOT IMPLEMENTED'
+            item_list = self.get_item_list_from_db()
+            response = "List:\n" + '\n'.join(item_list)
+        elif '!chooser game remove' in message.content.lower():
+            response = self.parse_game_remove_msg(message)
         else:
             response = 'TODO - Help Message'
 
         await message.channel.send(response)
+
+    def get_item_list_from_db(self):
+        item_tuples = self.db.items_table.retrieve_all(self.db.db)
+        item_list = []
+
+        for item in item_tuples:
+            item_list.append(item[1])
+
+        return item_list
+
+    def update_item_list_from_db(self):
+        item_list = self.get_item_list_from_db()
+        self.randomizer.set_list_of_games(item_list)
+
+    def parse_game_add_msg(self, message):
+        #crude implementation
+        words = message.content.split()
+        item = ' '.join(words[3:])
+
+        user_tuple = self.db.users_table.retrieve_entity(self.db.db, entity_name=message.author.name) 
+
+        if len(user_tuple) == 0:
+            self.db.users_table.create_entity(self.db.db, message.author.name)
+            user_tuple = self.db.users_table.retrieve_entity(self.db.db, entity_name=message.author.name)
+
+        self.db.items_table.create_entity(self.db.db, item, user_tuple[0][0])
+        response = user_tuple[0][1] + " added " + item
+
+        return response
+
+    def parse_game_remove_msg(self, message):
+        #crude implementation
+        words = message.content.split()
+        item = ' '.join(words[3:])
+
+        # need to figure out success/fail
+        self.db.items_table.delete_entity(self.db.db, entity_name=item)
+        
+        response = message.author.name + " removed " + item
+        return response
 
 def runBot():
     """
@@ -75,14 +106,12 @@ def runBot():
 
     # TODO switch for dynamic loading from some file or etc.
     db = getDatabase() 
-    items = db.items_table.retrieve_all(db.db)
+    item_tuples = db.items_table.retrieve_all(db.db)
 
     item_list = []
 
-    for item in items:
-        print(item)
+    for item in item_tuples:
         item_list.append(item[1])
-
 
     r1 = GameRandomizer(item_list)
     #r1 = GameRandomizer(["Valorant", "Minecraft", "Runescape", "League of Legends", "L4D2"])
